@@ -39,40 +39,59 @@ help() {
     exit 0
 }
 
+# Public: Current version of Sharness.
+export SHARNESS_VERSION="0.0.1"
+
 # Defining some environment variables if not already given
-# Debug flag
+# Public: Debug flag
 test -n "$OCTOHOOK_DEBUG"           && set -vx
-# XDG_CONFIG_HOME (should be set by the Desktop Env.)
+# Public: XDG_CONFIG_HOME (should be set by the Desktop Env.)
 test -z "$XDG_CONFIG_HOME"          && XDG_CONFIG_HOME="$HOME/.config"
-# Git config folder
+# Public: Git config folder
 test -z "$GIT_HOOK_D"               && GIT_HOOK_D="$XDG_CONFIG_HOME/git/hooks.d"
-# Octohook config folder
+# Public: Octohook config folder
 test -z "$OCTOHOOK_FOLDER"          && OCTOHOOK_FOLDER="$XDG_CONFIG_HOME/octohook"
-# Octohook config folder
+# Public: Octohook config folder
 test -z "$OCTOHOOK_HOOK_D"          && OCTOHOOK_HOOK_D="$OCTOHOOK_FOLDER/hooks.d"
-# CONFIGURATION file (sourcing it \o/)
+# Private: CONFIGURATION file (sourcing it \o/)
 test -r "$OCTOHOOK_FOLDER/config"   && . "$OCTOHOOK"
 
 # Helper class
 SELF=$(basename $0)
 
+# Private: print a debug line if $OCTOHOOK_DEBUG is defined
+#
+# $@ - string(s) to print
 debug() {
     [ -n "$OCTOHOOK_DEBUG" ] && echo "$SELF: debug: $@"
 }
 
+# Private: print a verbose line if $OCTOHOOK_VERBOSE or $OCTOHOOK_DEBUG present
+#
+# $@ - string(s) to print
 verbose() {
     if [ -n "$OCTOHOOK_DEBUG" ] || [ -n "$OCTOHOOK_VERBOSE" ]; then echo "$SELF: verbose: $@"; fi
 }
 
+# Private: print a fatal line and exit
+#
+# $1 - string(s) to print
+# $2 - exiting code
 fatal() {
     echo "$SELF: fatal: $1" >&2
     exit $2
 }
 
+# Private: print a error line
+#
+# $1 - string(s) to print
 error() {
     echo "$SELF: error: $1" >&2
 }
 
+# Private: print a info line
+#
+# $1 - string(s) to print
 info() {
     echo "$SELF: info: $1"
 }
@@ -102,4 +121,3 @@ case $1 in
         ;;
 esac
 
-exit 1
