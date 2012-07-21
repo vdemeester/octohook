@@ -1,0 +1,105 @@
+#!/bin/sh
+
+# This program is licensed under the GNU GPL version 2 or later.
+# (c) Vincent Demeester <vincent+github@demeester.fr>, 2012
+# For details, see LICENSE. To submit patches, you have to agree to
+# license your code under the GNU GPL version 2 or later.
+
+# While the following is not legally binding, the author would like to
+# explain the choice of GPLv2+ over GPLv3+.
+# The author prefers GPLv3+ over GPLv2+ but feels it's better to maintain
+# full compability with git. In case git ever changes its licensing terms,
+# this software will most likely follow suit.
+
+# The most important line in any shell program.
+set -e
+
+# There's a lot of different ways to do usage messages in shell scripts.
+# This is my favorite: you write the usage message in a comment --
+# typically right after the shebang line -- *BUT*, use a special comment prefix
+# like `#/` so that its easy to pull these lines out.
+#
+#/ Usage: octohook <command>
+#/ An advanced and flexible git hooks system.
+#/
+#/      install             install the hook system
+#/      uninstall           uninstall the hook system
+#/      activate [HOOK]     activate the given HOOK or
+#/                          all hooks if no argument given
+#/      deactivate [HOOK]   deactivate the given HOOK or
+#/                          all hooks if no argument given
+#/      help                print this help message
+#/
+
+# This is the second part of the usage message technique: `grep` yourself
+# for the usage message comment prefix and then cut off the first few
+# characters so that everything lines up.
+help() {
+    grep '^#/' <"$0" | cut -c4-
+    exit 0
+}
+
+# Defining some environment variables if not already given
+# Debug flag
+test -n "$OCTOHOOK_DEBUG"           && set -vx
+# XDG_CONFIG_HOME (should be set by the Desktop Env.)
+test -z "$XDG_CONFIG_HOME"          && XDG_CONFIG_HOME="$HOME/.config"
+# Git config folder
+test -z "$GIT_HOOK_D"               && GIT_HOOK_D="$XDG_CONFIG_HOME/git/hooks.d"
+# Octohook config folder
+test -z "$OCTOHOOK_FOLDER"          && OCTOHOOK_FOLDER="$XDG_CONFIG_HOME/octohook"
+# Octohook config folder
+test -z "$OCTOHOOK_HOOK_D"          && OCTOHOOK_HOOK_D="$OCTOHOOK_FOLDER/hooks.d"
+# CONFIGURATION file (sourcing it \o/)
+test -r "$OCTOHOOK_FOLDER/config"   && . "$OCTOHOOK"
+
+# Helper class
+SELF=$(basename $0)
+
+debug() {
+    [ -n "$OCTOHOOK_DEBUG" ] && echo "$SELF: debug: $@"
+}
+
+verbose() {
+    if [ -n "$OCTOHOOK_DEBUG" ] || [ -n "$OCTOHOOK_VERBOSE" ]; then echo "$SELF: verbose: $@"; fi
+}
+
+fatal() {
+    echo "$SELF: fatal: $1" >&2
+    exit $2
+}
+
+error() {
+    echo "$SELF: error: $1" >&2
+}
+
+info() {
+    echo "$SELF: info: $1"
+}
+
+case $1 in
+    install )
+        install
+        exit 0
+        ;;
+    uninstall )
+        uninstall
+        exit 0
+        ;;
+    activate )
+        shift
+        activate $*
+        exit 0
+        ;;
+    deactivate )
+        shift
+        deactivate $*
+        exit 0
+        ;;
+    help | * )
+        help
+        exit 1
+        ;;
+esac
+
+exit 1

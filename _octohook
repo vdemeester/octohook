@@ -1,0 +1,10 @@
+#compdef octohook
+
+_arguments \
+    ':subcommand:((
+        activate\:"activate the given <HOOK> (all if no argument)"
+        deactivate\:"deactivate the given <HOOK> (all if no argument)"
+        install\:"install octohook for the current git repository"
+        help\:"display help"
+        uninstall\:"uninstall octohook for the current git repository"
+        ))'

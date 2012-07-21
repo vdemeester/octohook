@@ -1,1 +1,1 @@
-guard: guard
+guard: bundle exec guard

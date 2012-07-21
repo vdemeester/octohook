@@ -87,3 +87,15 @@ flexibilty (and maybe because I like the word hooks).
 ## A Real-world example
 
 _soon_
+
+## Credits
+
+There is multiple inspiration for this piece of software :
+
+* [Git](http://git-scm.com) itself.
+* [git-hooks](https://github.com/endorama/git-hooks), the original piece of software I used.
+* [vcsh](https://github.com/RichiH/vcsh), a wonderful piece of software I use
+  and from which I take inspiration when writing shell scripts.
+* [shocco.sh](https://github.com/rtomayko/shocco), another wonderful piece of
+  software, inspiration to write cool and posix-compliant shell scripts.
+
