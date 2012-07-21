@@ -33,7 +33,7 @@ let the user manage and customized which hook have to run when. To be more
 evil than evil, octohook allow to set hooks for hooks — more details on that
 later.
 
-### Directory layout
+## Directory layout
 
 Octohook will look for hooks in ``$OCTOHOOK_FOLDER``, which by default point to
 ``$XDG_CONFIG_HOME`` (which by default should point to ``$HOME``). Then the
@@ -53,7 +53,37 @@ directory structure will look like :
     |   |   |   `-- […]
     |   |   `-- […]
     |   `-- octohook
+    |       |-- hooks.d
+    |       |   |-- pre-commit
+    |       |   |   |-- pre.stash-it.sh
+    |       |   |   |-- pre.some-python-script.py
+    |       |   |   `-- post.stash-it.sh
+    |       |   |-- prepare-commit-msg
+    |       |   |-- post-commit
+    |       |   `-- […]
     |       `-- config
     ˙-- […]
 
+### git/hooks.d
 
+The ``$XDG_CONFIG_HOME/git/hooks.d`` contains a folder for each ``git-hooks``
+(pre-commit, post-commit, …). Each of this folder can contains any scripts
+(shell, python, ruby, …) that is executable. The scripts will be executing in
+natural (alphabetical) orders. That way, if you need to keep an order, you can
+play with names, prefixing name with ``00_``, ``01_``, ``10_``, etc.). If the
+script is not executable, it will not be executable.
+
+### octohook/hooks.d
+
+The ``$XDG_CONFIG_HOME/octohook/hooks.d`` work almost the same as
+``git/hooks.d``, a folder for each ``git-hooks``. The folder can contains any
+scripts that is executable. The name are more important here : a script can
+start either with ``pre`` or ``post``. ``pre.*`` scripts will be executed before
+the hook(s) and ``post.*`` scripts will be executed after.
+
+A hook system over another hook system might sound evil but it is there for
+flexibilty (and maybe because I like the word hooks).
+
+## A Real-world example
+
+_soon_
