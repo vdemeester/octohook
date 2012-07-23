@@ -167,11 +167,52 @@ init_octohook() {
     fi
 }
 
+# Private : finds hoooks
+#
+# $1 - folder to look "in"
+# $2 - name of the hook
+find_hooks() {
+    FOLDER="$1"
+    shift
+    HOOK="$1"
+    shift
+    find -L "${FOLDER}/${HOOK}" -perm +111 -type f -o -path ${FOLDER} -prune 2>/dev/null | grep -v "^.$" | sort
+}
+
+# Private : list folders that holds hook
+#
+# $1 - the hook name
+hook_folders() {
+    echo "$OCTOHOOK_LOCAL_HOOK_D $GIT_HOOK_D"
+}
+
 # Private : run the given hook
 #
 # $1 - the hook name to run
-run_hook() {
-    fatal "Not yet implemented" 10
+run_hooks() {
+    hook="$1"
+    shift
+    set +e
+    # 1. List hooks, in order (local, then global)
+    # 2. Run them
+    for hook_folder in `hook_folders $hook`; do
+        for realhook in `find_hooks $hook_folder $hook`; do
+            result=$($realhook $*)
+            if test $? -gt 0; then
+                echo "@@@@@@@@@@@@@@@@@@@@ HOOK FAILURE @@@@@@@@@@@@@@@@@@@@"
+                echo "@ Hook    :   $hook"
+                echo "@ Script  :   $realhook"
+                echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+                echo "$result"
+                echo "@@@@@@@@@@@@@@@@@@@@ HOOK FAILURE @@@@@@@@@@@@@@@@@@@@"
+                run_octohook "$hook" "post"
+                return 1
+            else
+                echo "$result"
+            fi
+        done
+    done
+    set -e
 }
 
 # Private : run octohook hook
@@ -179,7 +220,19 @@ run_hook() {
 # $1 - the hook name
 # $2 - the prefix
 run_octohook() {
-    fatal "Not yet implemented" 10
+    hook="$1"
+    shift
+    prefix="$1"
+    shift
+    if test -d $OCTOHOOK_HOOK_D/$hook; then
+        for octohook in `find_hooks "$OCTOHOOK_HOOK_D" "$hook"`; do
+            base_octohook="$(basename $octohook)"
+            subs="\${base_octohook##$prefix}"
+            if ! test "$base_octohook" = "$(eval echo $subs)"; then
+                $octohook
+            fi
+        done
+    fi
 }
 
 # Public: Run a hook
@@ -204,8 +257,6 @@ run() {
     run_hooks "$hook" "$*"
     # 3. Finally run OCTOHOOK (post) hooks
     run_octohook "$hook" "post"
-    echo "$*"
-    fatal "Not yet implemented" 10
 }
 
 # Public: Install the hook system based on octohook
