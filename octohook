@@ -311,6 +311,10 @@ case $1 in
         shift
         deactivate $*
         ;;
+    version | --version )
+        echo "$OCTOHOOK_VERSION"
+        exit 0
+        ;;
     help | * )
         help
         exit 1
