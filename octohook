@@ -155,16 +155,62 @@ remove_hooks() {
     unbackup_dir $GIT_HOOK_FOLDER
 }
 
+# Private : init octohook if not alreay init
+init_octohook() {
+    if ! test -d $GIT_HOOK_D; then
+        info "Initialize git hooks folder ($GIT_HOOK_D)"
+        mkdir -p "$GIT_HOOK_D"
+    fi
+    if ! test -d $OCTOHOOK_HOOK_D; then
+        info "Initialize octohook hooks folder ($OCTOHOOK_HOOK_D)"
+        mkdir -p "$OCTOHOOK_HOOK_D"
+    fi
+}
+
+# Private : run the given hook
+#
+# $1 - the hook name to run
+run_hook() {
+    fatal "Not yet implemented" 10
+}
+
+# Private : run octohook hook
+#
+# $1 - the hook name
+# $2 - the prefix
+run_octohook() {
+    fatal "Not yet implemented" 10
+}
+
 # Public: Run a hook
 #
 # The main method of octohook as it is called everytime a hook is executed
 # by git.
 run() {
+    init_octohook
+    is_in_git
+    if [ ! -z "${GIT_DIR}" ] ; then
+        unset GIT_DIR
+    fi
+    shift
+    hook=$(basename $1)
+    shift
+    if test -z "$hook"; then
+        fatal "run requires a hook argument" 1
+    fi
+    # 1. First run OCTOHOOK (pre) hooks
+    run_octohook "$hook" "pre"
+    # 2. Executes hooks
+    run_hooks "$hook" "$*"
+    # 3. Finally run OCTOHOOK (post) hooks
+    run_octohook "$hook" "post"
+    echo "$*"
     fatal "Not yet implemented" 10
 }
 
 # Public: Install the hook system based on octohook
 install() {
+    init_octohook
     is_in_git $PWD
     local GIT_OLD_HOOK_FOLDER="$GITDIR/.git/hooks.old"
     if test -d $GIT_OLD_HOOK_FOLDER; then 
@@ -176,24 +222,29 @@ install() {
 
 # Public: Uninstall the hook system
 uninstall() {
+    init_octohook
     is_in_git $PWD
     remove_hooks "$GITDIR"
 }
 
 # Public: Activate a hook (or all)
 activate() {
+    init_octohook
+    is_in_git
     fatal "Not yet implemented" 10
 }
 
 # Public: Deactivate a hook (or all)
 deactivate() {
+    init_octohook
+    is_in_git
     fatal "Not yet implemented" 10
 }
 
 # The main "loop"
 case $1 in
     run )
-        run
+        run $*
         ;;
     install )
         install
