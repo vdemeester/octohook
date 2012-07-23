@@ -22,6 +22,7 @@ set -e
 #/ Usage: octohook <command>
 #/ An advanced and flexible git hooks system.
 #/
+#/      run HOOK            run hooks for the given HOOK
 #/      install             install the hook system
 #/      uninstall           uninstall the hook system
 #/      activate [HOOK]     activate the given HOOK or
@@ -53,6 +54,8 @@ test -z "$GIT_HOOK_D"               && GIT_HOOK_D="$XDG_CONFIG_HOME/git/hooks.d"
 test -z "$OCTOHOOK_FOLDER"          && OCTOHOOK_FOLDER="$XDG_CONFIG_HOME/octohook"
 # Public: Octohook config folder
 test -z "$OCTOHOOK_HOOK_D"          && OCTOHOOK_HOOK_D="$OCTOHOOK_FOLDER/hooks.d"
+# Public: local Octohook config folder
+test -z "$OCTOHOOK_LOCAL_HOOK_D"    && OCTOHOOK_LOCAL_HOOK_D="hooks"
 # Private: CONFIGURATION file (sourcing it \o/)
 test -r "$OCTOHOOK_FOLDER/config"   && . "$OCTOHOOK"
 
@@ -96,14 +99,85 @@ info() {
     echo "$SELF: info: $1"
 }
 
+# Private: Is the curent directory a git repository
+is_in_git() {
+    GITDIR=$(git rev-parse --show-toplevel)
+    if ! test $? -eq 0; then
+        fatal "$1 must be run inside a git repository" 1
+    fi
+}
+
+# Private: move (backup) a directory
+#
+# $1 - The folder to move (backup)
+backup_dir() {
+    mv $1 $1.old
+}
+# Private: move back a directory
+#
+# $1 - the folder to move back
+unbackup_dir() {
+    mv $1.old $1
+}
+
+# Private: init hooks to use octohook
+#
+# Init the scripts for possible git hooks and create the
+# local hook folder (helper).
+#
+# $1 - the root folder
+init_hooks() {
+    GIT_HOOK_FOLDER="$1/.git/hooks"
+    mkdir $GIT_HOOK_FOLDER
+    for file in applypatch-msg commit-msg post-applypatch post-checkout post-commit post-merge post-receive pre-applypatch pre-auto-gc pre-commit prepare-commit-msg pre-rebase pre-receive update
+    do
+        cat > ${GIT_HOOK_FOLDER}/${file} << EOF
+#!/bin/sh
+octohook run "\$0" "\$@"
+EOF
+        chmod +x "${GIT_HOOK_FOLDER}/${file}"
+    done
+    if test -e "$1/$OCTOHOOK_LOCAL_HOOK_D"; then
+        mkdir "$1/$OCTOHOOK_LOCAL_HOOK_D"
+    fi
+}
+
+# Private: remove hooks if they use octohook
+#
+# $1 - the root folder
+remove_hooks() {
+    GIT_HOOK_FOLDER="$1/.git/hooks"
+    GIT_OLD_HOOK_FOLDER="$1/.git/hooks.old"
+    if ! test -d $GIT_OLD_HOOK_FOLDER; then 
+        fatal "Error, hooks.old doesn't exists, aborting uninstall to not destroy something" 1
+    fi
+    rm -rf $GIT_HOOK_FOLDER
+    unbackup_dir $GIT_HOOK_FOLDER
+}
+
+# Public: Run a hook
+#
+# The main method of octohook as it is called everytime a hook is executed
+# by git.
+run() {
+    fatal "Not yet implemented" 10
+}
+
 # Public: Install the hook system based on octohook
 install() {
-    fatal "Not yet implemented" 10
+    is_in_git $PWD
+    local GIT_OLD_HOOK_FOLDER="$GITDIR/.git/hooks.old"
+    if test -d $GIT_OLD_HOOK_FOLDER; then 
+        fatal "Error, hooks.old does exists, aborting install to not destroy something" 1
+    fi
+    backup_dir "$GITDIR/.git/hooks"
+    init_hooks "$GITDIR"
 }
 
 # Public: Uninstall the hook system
 uninstall() {
-    fatal "Not yet implemented" 10
+    is_in_git $PWD
+    remove_hooks "$GITDIR"
 }
 
 # Public: Activate a hook (or all)
@@ -118,23 +192,22 @@ deactivate() {
 
 # The main "loop"
 case $1 in
+    run )
+        run
+        ;;
     install )
         install
-        exit 0
         ;;
     uninstall )
         uninstall
-        exit 0
         ;;
     activate )
         shift
         activate $*
-        exit 0
         ;;
     deactivate )
         shift
         deactivate $*
-        exit 0
         ;;
     help | * )
         help
