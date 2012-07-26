@@ -205,7 +205,7 @@ run_hooks() {
                 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
                 echo "$result"
                 echo "@@@@@@@@@@@@@@@@@@@@ HOOK FAILURE @@@@@@@@@@@@@@@@@@@@"
-                run_octohook "$hook" "post"
+                run_octohook "$hook" "post" 1
                 return 1
             else
                 echo "$result"
@@ -229,7 +229,7 @@ run_octohook() {
             base_octohook="$(basename $octohook)"
             subs="\${base_octohook##$prefix}"
             if ! test "$base_octohook" = "$(eval echo $subs)"; then
-                $octohook
+                $octohook $*
             fi
         done
     fi
@@ -256,7 +256,7 @@ run() {
     # 2. Executes hooks
     run_hooks "$hook" "$*"
     # 3. Finally run OCTOHOOK (post) hooks
-    run_octohook "$hook" "post"
+    run_octohook "$hook" "post" $?
 }
 
 # Public: Install the hook system based on octohook
