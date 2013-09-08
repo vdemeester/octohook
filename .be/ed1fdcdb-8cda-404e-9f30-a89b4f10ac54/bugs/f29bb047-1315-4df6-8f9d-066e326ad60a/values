@@ -1,0 +1,71 @@
+{
+
+
+
+
+
+
+    "creator": "Vincent Demeester <vincent+git@demeester.fr>", 
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "BLOCKS:4f45246a-e513-4d55-a4f0-de4c7b03bc23"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "reporter": "Vincent Demeester <vincent+git@demeester.fr>", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "Rewrite using 37signals sub (or subcommander) for octohook", 
+
+
+
+
+
+
+    "time": "Sun, 08 Sep 2013 17:23:12 +0000"
+
+
+
+
+
+
+}

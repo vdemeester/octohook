@@ -1,0 +1,19 @@
+Add a verbose mode using environment variables :
+
+```bash
+$ OCTOHOOK_VERBOSE=1 git commit
+Running octohook pre hooks for 'pre-commit'
+> pre.stash...
+[… output of pre.stash…]
+Running git hooks for 'pre-commit'
+```
+
+By default the behavior/output should non-verbose and more like that :
+
+```bash
+$ git commit
+> octohook:pre.stash... ok
+> git:mvn-test... ok
+> git:blabla... ko
+[… stack trace of sort]
+```

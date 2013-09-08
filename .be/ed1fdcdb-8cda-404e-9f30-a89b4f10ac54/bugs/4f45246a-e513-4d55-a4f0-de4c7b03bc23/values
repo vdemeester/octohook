@@ -1,0 +1,64 @@
+{
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "BLOCKED-BY:884e4085-bc80-46d6-a497-c37f7e61cccf", 
+
+
+
+
+
+
+        "BLOCKED-BY:f29bb047-1315-4df6-8f9d-066e326ad60a"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "severity": "target", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "0.1.0", 
+
+
+
+
+
+
+    "time": "Sun, 08 Sep 2013 17:23:25 +0000"
+
+
+
+
+
+
+}
